@@ -24,20 +24,13 @@ def process(img, filters):
 
 def filter_face(input_name, x,y,w,h):
     filters = build_filters()
-    img = cv.LoadImage(input_name, 1)
-    cv.ShowImage("original", img)
-    gray = cv.CreateImage((img.width,img.height), 8, 1)
-    small_img = cv.CreateImage((cv.Round(img.width / image_scale), cv.Round (img.height / image_scale)), 8, 1)
-    # convert color input image to grayscale
-    cv.CvtColor(img, gray, cv.CV_BGR2GRAY)
-    # scale input image for faster processing
-    cv.Resize(gray, small_img, cv.CV_INTER_LINEAR)
-    cv.EqualizeHist(small_img, small_img)
-    print x,y,w,h
-    cropped = cv.GetSubRect(small_img,(x,y,w,h))
+    img  = cv2.imread(input_name)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.equalizeHist(gray)
+    cropped = gray[y:h, x:w]
     img_arr = np.asarray(cropped[:,:])
     new_img = process(img_arr, filters)
-    cv2.imshow('edge detection',new_img)
+    #cv2.imshow('edge detection',new_img)
     return new_img
 
 if __name__ == '__main__':
