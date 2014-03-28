@@ -53,15 +53,17 @@ def detect_faces(filename):
     # find features within largest face
     for x1, y1, x2, y2 in face:
         # eyes are in top 1/2 of face
-        roi      = gray[y1:y2-(y2-y1)/2, x1:x2]
-        vis_roi  =  vis[y1:y2, x1:x2]
+        w        = x2-x1
+        h        = y2-y1
+        roi      = gray[y1+0.2*h:y2-0.5*h, x1+0.1*w:x2-0.1*w]
+        vis_roi  =  vis[y1+0.2*h:y2-0.5*h, x1+0.1*w:x2-0.1*w]
         eye      = detect(roi.copy(), eye_clf)
         draw_rects(vis_roi, eye, (0, 0, 255))
         print(eye)
 
         # mouth is in bottom 1/3 of face
-        roi      = gray[y1+2*(y2-y1)/3:y2, x1+(x2-x1)/4:x2-(x2-x1)/4]
-        vis_roi  =  vis[y1+2*(y2-y1)/3:y2, x1+(x2-x1)/4:x2-(x2-x1)/4]
+        roi      = gray[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
+        vis_roi  =  vis[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
         mouth    = detect(roi.copy(), mouth_clf)
         draw_rects(vis_roi, mouth, (255, 0, 0))
         print(mouth)
