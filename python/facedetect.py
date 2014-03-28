@@ -35,6 +35,8 @@ def detect_faces(filename):
     eye_clf         = cv2.CascadeClassifier('haarcascades/haarcascade_eye.xml')
     mouth_clf       = cv2.CascadeClassifier('haarcascades/haarcascade_smile.xml')
 
+    results = {}
+
     img  = cv2.imread(filename)
     vis  = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -48,7 +50,7 @@ def detect_faces(filename):
             maxWidth = x2-x1
             face = [[x1, y1, x2, y2]]
     draw_rects(vis, face, (0, 255, 0))
-    print(face)
+    results['face'] = face
 
     # find features within largest face
     for x1, y1, x2, y2 in face:
@@ -59,16 +61,17 @@ def detect_faces(filename):
         vis_roi  =  vis[y1+0.2*h:y2-0.5*h, x1+0.1*w:x2-0.1*w]
         eye      = detect(roi.copy(), eye_clf)
         draw_rects(vis_roi, eye, (0, 0, 255))
-        print(eye)
+        results['eyes'] = eye
 
         # mouth is in bottom 1/3 of face
         roi      = gray[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
         vis_roi  =  vis[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
         mouth    = detect(roi.copy(), mouth_clf)
         draw_rects(vis_roi, mouth, (255, 0, 0))
-        print(mouth)
+        results['mouth'] = mouth
 
     cv2.imwrite("analysed/" + os.path.basename(filename), vis)
+    return results
     #cv2.waitKey(0);
 
 if __name__ == '__main__':
@@ -77,4 +80,5 @@ if __name__ == '__main__':
     with open('./dataset_prep/classified_images.csv','rb') as csvfile:
       file_reader = csv.reader(csvfile, delimiter=',', quotechar='|')
       for row in file_reader:
-        detect_faces(row[0])
+        result = detect_faces(row[0])
+        print(result)
