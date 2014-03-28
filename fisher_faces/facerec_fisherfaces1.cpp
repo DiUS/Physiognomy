@@ -141,8 +141,12 @@ int main(int argc, const char *argv[]) {
     cout << "Predicting..." << endl;
     // The following line predicts the label of a given
     // test image:
+    int numCorrect = 0;
+
     for(int i =0; i< imagesToPredict.size() ; i++) {
-        int predictedLabel = model->predict(imagesToPredict[i]);
+        int predictedLabel = -1;
+        double confidence = 0.0;
+        model->predict(imagesToPredict[i], predictedLabel, confidence);
         string result_message = format("Predicted class = %d / Actual class = %d.", predictedLabel, actualLabels[i]);
         cout << result_message << endl;
         string image_name;
@@ -150,15 +154,20 @@ int main(int argc, const char *argv[]) {
         string result = "correct";
         if(predictedLabel != actualLabels[i]) {
             result = "wrong";
+        } else {
+            numCorrect++;
         }
 
         if(predictedLabel == 0) {
-            image_name = format("predictions/happy_%s_%d.png", result.c_str(), i);
+            image_name = format("predictions/happy_%s_%d_conf_%0.2f.png", result.c_str(), i, confidence);
         } else {
-            image_name = format("predictions/sad_%s_%d.png", result.c_str(), i);
+            image_name = format("predictions/sad_%s_%d_conf_%0.2f.png", result.c_str(), i, confidence);
         }
         imwrite(image_name, imagesToPredict[i]);
    }
+
+   cout << format("Got %d out of %d correct (%.2f %)", numCorrect, imagesToPredict.size(), 
+    100.0 * numCorrect / imagesToPredict.size()) << endl;
 
     // int predictedLabel = model->predict(testSample);
     //
