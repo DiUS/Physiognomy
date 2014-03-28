@@ -30,7 +30,7 @@ def filter_face(input_name, x,y,w,h):
     cropped = gray[y:h, x:w]
     img_arr = np.asarray(cropped[:,:])
     new_img = process(img_arr, filters)
-    #cv2.imshow('edge detection',new_img)
+    cv2.imshow('edge detection',new_img)
     return new_img
 
 if __name__ == '__main__':
