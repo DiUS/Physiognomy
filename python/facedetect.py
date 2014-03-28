@@ -2,6 +2,8 @@
 
 import cv2
 import cv2.cv as cv
+import csv
+import os
 
 # https://stackoverflow.com/questions/20801015/opencv-detectmultiscale-parameters
 
@@ -28,15 +30,12 @@ def draw_rects(img, rects, color):
     for x1, y1, x2, y2 in rects:
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
-if __name__ == '__main__':
-    import sys
-
-    fn = sys.argv[1]
+def detect_faces(filename):
     frontalface_clf = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_alt2.xml')
     eye_clf         = cv2.CascadeClassifier('haarcascades/haarcascade_eye.xml')
     mouth_clf       = cv2.CascadeClassifier('haarcascades/haarcascade_smile.xml')
 
-    img  = cv2.imread(fn)
+    img  = cv2.imread(filename)
     vis  = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
@@ -67,5 +66,13 @@ if __name__ == '__main__':
         draw_rects(vis_roi, mouth, (255, 0, 0))
         print(mouth)
 
-    cv2.imshow('facedetect', vis)
-    cv2.waitKey(0);
+    cv2.imwrite("analysed/" + os.path.basename(filename), vis)
+    #cv2.waitKey(0);
+
+if __name__ == '__main__':
+    import sys
+    
+    with open('./dataset_prep/classified_images.csv','rb') as csvfile:
+      file_reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+      for row in file_reader:
+        detect_faces(row[0])
