@@ -1,11 +1,24 @@
 #!/usr/bin/env python
 
-import numpy as np
 import cv2
 import cv2.cv as cv
 
+# https://stackoverflow.com/questions/20801015/opencv-detectmultiscale-parameters
+
+# scaleFactor - Parameter specifying how much the image size is reduced at each image scale.
+# Basically the scale factor is used to create your scale pyramid. More explanation can be found here. 1.05 is a good possible value for this, which means you use a small step for resizing, i.e. reduce size by 5 %, you increase the chance of a matching size with the model for detection is found.
+
+# minNeighbors - Parameter specifying how many neighbors each candidate rectangle should have to retain it.
+# This parameter will affect the quality of the detected faces. Higher value results in less detections but with higher quality. 3~6 is a good value for it.
+
+# minSize - Minimum possible object size. Objects smaller than that are ignored.
+# This parameter determine how small size you want to detect. You decide it! Usually, [30, 30] is a good start for face detections.
+
+# maxSize - Maximum possible object size. Objects bigger than that are ignored.
+# This parameter determine how big size you want to detect. Again, you decide it! Usually, you don't need to set it manually, which means you want to detect any big, i.e. don't want to miss any one that is big enough.
+
 def detect(img, cascade):
-    rects = cascade.detectMultiScale(img, scaleFactor=1.3, minNeighbors=4, minSize=(30, 30), flags = cv.CV_HAAR_SCALE_IMAGE)
+    rects = cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=4, minSize=(30, 30), flags=cv.CV_HAAR_SCALE_IMAGE)
     if len(rects) == 0:
         return []
     rects[:,2:] += rects[:,:2]
@@ -18,8 +31,7 @@ def draw_rects(img, rects, color):
 if __name__ == '__main__':
     import sys
 
-    fn = '/home/vwong/tmp/downloads/faces/cohn-kanade-images/S005/001/S005_001_00000011.png'
-
+    fn = sys.argv[1]
     frontalface_clf = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_alt2.xml')
     mouth_clf       = cv2.CascadeClassifier('haarcascades/haarcascade_msc_mouth.xml')
     nose_clf        = cv2.CascadeClassifier('haarcascades/haarcascade_msc_nose.xml')
@@ -37,18 +49,17 @@ if __name__ == '__main__':
     for x1, y1, x2, y2 in frontalfaces:
         # TODO: increase/decrease sensitivity to find one and only one nose, mouth
 
-        # assume nose is in the middle 1/3 of frontalface
-        roi      = gray[y1+(y2-y1)/3:y2-(y2-y1)/3, x1+(x2-x1)/3:x2-(x2-x1)/3]
-        vis_roi  =  vis[y1+(y2-y1)/3:y2-(y2-y1)/3, x1+(x2-x1)/3:x2-(x2-x1)/3]
+        roi      = gray[y1:y2, x1:x2]
+        vis_roi  =  vis[y1:y2, x1:x2]
         nose     = detect(roi.copy(), nose_clf)
         draw_rects(vis_roi, nose, (255, 0, 0))
         print(nose)
 
-        # assume mouth in bottom 1/2 of frontalface
-        roi      = gray[y1+(y2-y1)/2:y2, x1+(x2-x1)/2:x2]
-        vis_roi  =  vis[y1+(y2-y1)/2:y2, x1+(x2-x1)/2:x2]
+        roi      = gray[y1:y2, x1:x2]
+        vis_roi  =  vis[y1:y2, x1:x2]
         mouth    = detect(roi.copy(), mouth_clf)
         draw_rects(vis_roi, mouth, (255, 0, 0))
         print(mouth)
 
-    cv2.imwrite('foo.png', vis)
+    cv2.imshow('facedetect', vis)
+    cv2.waitKey(0);
