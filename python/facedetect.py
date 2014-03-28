@@ -18,7 +18,7 @@ import cv2.cv as cv
 # This parameter determine how big size you want to detect. Again, you decide it! Usually, you don't need to set it manually, which means you want to detect any big, i.e. don't want to miss any one that is big enough.
 
 def detect(img, cascade):
-    rects = cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=4, minSize=(30, 30), flags=cv.CV_HAAR_SCALE_IMAGE)
+    rects = cascade.detectMultiScale(img, scaleFactor=1.02, minNeighbors=3, minSize=(30, 30), flags=cv.CV_HAAR_SCALE_IMAGE)
     if len(rects) == 0:
         return []
     rects[:,2:] += rects[:,:2]
@@ -33,30 +33,36 @@ if __name__ == '__main__':
 
     fn = sys.argv[1]
     frontalface_clf = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_alt2.xml')
-    mouth_clf       = cv2.CascadeClassifier('haarcascades/haarcascade_msc_mouth.xml')
-    nose_clf        = cv2.CascadeClassifier('haarcascades/haarcascade_msc_nose.xml')
+    eye_clf         = cv2.CascadeClassifier('haarcascades/haarcascade_eye.xml')
+    mouth_clf       = cv2.CascadeClassifier('haarcascades/haarcascade_smile.xml')
 
     img  = cv2.imread(fn)
     vis  = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
 
-    # find all faces
+    # find all faces, then keep the largest
     frontalfaces = detect(gray, frontalface_clf)
-    draw_rects(vis, frontalfaces, (0, 255, 0))
-    print(frontalfaces)
-
+    maxWidth = 0
     for x1, y1, x2, y2 in frontalfaces:
-        # TODO: increase/decrease sensitivity to find one and only one nose, mouth
+        if x2-x1 > maxWidth:
+            maxWidth = x2-x1
+            face = [[x1, y1, x2, y2]]
+    draw_rects(vis, face, (0, 255, 0))
+    print(face)
 
-        roi      = gray[y1:y2, x1:x2]
+    # find features within largest face
+    for x1, y1, x2, y2 in face:
+        # eyes are in top 1/2 of face
+        roi      = gray[y1:y2-(y2-y1)/2, x1:x2]
         vis_roi  =  vis[y1:y2, x1:x2]
-        nose     = detect(roi.copy(), nose_clf)
-        draw_rects(vis_roi, nose, (255, 0, 0))
-        print(nose)
+        eye      = detect(roi.copy(), eye_clf)
+        draw_rects(vis_roi, eye, (0, 0, 255))
+        print(eye)
 
-        roi      = gray[y1:y2, x1:x2]
-        vis_roi  =  vis[y1:y2, x1:x2]
+        # mouth is in bottom 1/3 of face
+        roi      = gray[y1+2*(y2-y1)/3:y2, x1+(x2-x1)/4:x2-(x2-x1)/4]
+        vis_roi  =  vis[y1+2*(y2-y1)/3:y2, x1+(x2-x1)/4:x2-(x2-x1)/4]
         mouth    = detect(roi.copy(), mouth_clf)
         draw_rects(vis_roi, mouth, (255, 0, 0))
         print(mouth)
