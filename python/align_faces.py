@@ -33,6 +33,8 @@
 
 import sys, math
 from PIL import Image
+import facedetect
+
 
 def Distance(p1,p2):
   dx = p2[0] - p1[0]
@@ -91,7 +93,15 @@ if __name__ == "__main__":
     label = lineArray[1]
     print "aligning %s to aligned" % (fileName)
     aligned_file_name = "aligned/%s" % fileName
-    CropFace(Image.open(fileName), eye_left=(252,364), eye_right=(420,366), offset_pct=(0.1,0.1), dest_sz=(200,200)).save(aligned_file_name)
+
+    
+    face = facedetect.detect_faces(fileName)['face'][0]
+    print(face)
+
+    CropFace(Image.open(fileName), eye_left=(face[0],face[1]), eye_right=(face[2],face[1]), offset_pct=(0.08,0.08), dest_sz=(200,200)).save(aligned_file_name)
+
+
+    # CropFace(Image.open(fileName), eye_left=(252,364), eye_right=(420,366), offset_pct=(0.1,0.1), dest_sz=(200,200)).save(aligned_file_name)
     csv.write("%s;%s" % (aligned_file_name, label))
   f.close()
   csv.close()

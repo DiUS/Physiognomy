@@ -146,10 +146,16 @@ int main(int argc, const char *argv[]) {
         string result_message = format("Predicted class = %d / Actual class = %d.", predictedLabel, actualLabels[i]);
         cout << result_message << endl;
         string image_name;
+
+        string result = "correct";
+        if(predictedLabel != actualLabels[i]) {
+            result = "wrong";
+        }
+
         if(predictedLabel == 0) {
-            image_name = format("predictions/happy_%d.png", i);
+            image_name = format("predictions/happy_%s_%d.png", result.c_str(), i);
         } else {
-            image_name = format("predictions/sad_%d.png", i);
+            image_name = format("predictions/sad_%s_%d.png", result.c_str(), i);
         }
         imwrite(image_name, imagesToPredict[i]);
    }
