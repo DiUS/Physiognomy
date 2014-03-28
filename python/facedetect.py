@@ -57,15 +57,15 @@ def detect_faces(filename):
         # eyes are in top 1/2 of face
         w        = x2-x1
         h        = y2-y1
-        roi      = gray[y1+0.2*h:y2-0.5*h, x1+0.1*w:x2-0.1*w]
-        vis_roi  =  vis[y1+0.2*h:y2-0.5*h, x1+0.1*w:x2-0.1*w]
+        roi      = gray[int(round(y1+0.2*h)):int(round(y2-0.5*h)), int(round(x1+0.1*w)):int(round(x2-0.1*w))]
+        vis_roi  =  vis[int(round(y1+0.2*h)):int(round(y2-0.5*h)), int(round(x1+0.1*w)):int(round(x2-0.1*w))]
         eye      = detect(roi.copy(), eye_clf)
         draw_rects(vis_roi, eye, (0, 0, 255))
         results['eyes'] = eye
 
         # mouth is in bottom 1/3 of face
-        roi      = gray[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
-        vis_roi  =  vis[y1+0.7*h:y2-0.1*h, x1+0.2*w:x2-0.2*w]
+        roi      = gray[int(round(y1+0.7*h)):int(round(y2-0.1*h)), int(round(x1+0.2*w)):int(round(x2-0.2*w))]
+        vis_roi  =  vis[int(round(y1+0.7*h)):int(round(y2-0.1*h)), int(round(x1+0.2*w)):int(round(x2-0.2*w))]
         mouth    = detect(roi.copy(), mouth_clf)
         draw_rects(vis_roi, mouth, (255, 0, 0))
         results['mouth'] = mouth
