@@ -28,7 +28,7 @@ if __name__ == '__main__':
         X.append(face_vector)
         y.append(row[1])
 
-    clf = svn.SVC()
+    clf = svm.SVC()
     clf.fit(X,y)
     result = facedetect.detect_faces("cohn-kanade-images/S005/001/S005_001_00000006.png")
     face = result['face'][0]
